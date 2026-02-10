@@ -76,3 +76,7 @@ This tool is intended for authorized security testing only. Only test systems yo
 ## License
 
 Apache 2.0
+
+## AI Disclosure
+
+This project uses a human-led, AI-augmented workflow. See [AI-STATEMENT.md](AI-STATEMENT.md).
