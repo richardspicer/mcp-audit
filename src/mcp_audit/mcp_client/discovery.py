@@ -149,4 +149,5 @@ async def enumerate_server(conn: MCPConnection) -> ScanContext:
         resources=resources,
         prompts=prompts,
         transport_type=conn.transport_type,
+        session=session,
     )

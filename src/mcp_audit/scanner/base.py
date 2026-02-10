@@ -73,6 +73,8 @@ class ScanContext:
         resources: List of resources exposed by the server.
         prompts: List of prompts exposed by the server.
         transport_type: Transport used to connect ('stdio', 'sse', 'streamable-http').
+        session: The active MCP ClientSession for calling tools/resources.
+            Type is Any to avoid coupling scanner modules to the SDK.
         config: Scanner-specific configuration overrides.
     """
 
@@ -81,6 +83,7 @@ class ScanContext:
     resources: list[dict[str, Any]] = field(default_factory=list)
     prompts: list[dict[str, Any]] = field(default_factory=list)
     transport_type: str = "stdio"
+    session: Any = None
     config: dict[str, Any] = field(default_factory=dict)
 
 
