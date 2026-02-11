@@ -1,7 +1,7 @@
 """Smoke tests for mcp-audit package."""
 
 from mcp_audit import __version__
-from mcp_audit.scanner.base import BaseScanner, Finding, ScanContext, Severity
+from mcp_audit.scanner.base import Finding, ScanContext, Severity
 
 
 def test_version():

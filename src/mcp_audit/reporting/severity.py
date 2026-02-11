@@ -6,7 +6,6 @@ scoring utilities for report generation.
 
 from mcp_audit.scanner.base import Severity
 
-
 # CVSS v3.1 score ranges mapped to severity levels
 CVSS_RANGES: dict[Severity, tuple[float, float]] = {
     Severity.CRITICAL: (9.0, 10.0),

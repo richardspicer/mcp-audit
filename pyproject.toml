@@ -37,8 +37,9 @@ dependencies = [
 dev = [
     "pytest>=8",
     "pytest-asyncio>=0.24",
-    "ruff>=0.9",
+    "ruff>=0.15",
     "bandit>=1.8",
+    "pre-commit>=4.5",
 ]
 fixtures = [
     "fastmcp>=2.14,<3",
@@ -65,8 +66,28 @@ target-version = "py311"
 line-length = 100
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP", "B", "SIM", "S"]
-ignore = ["S101"]  # Allow assert in tests
+select = [
+    "E",    # pycodestyle errors
+    "F",    # pyflakes
+    "I",    # isort (import sorting)
+    "N",    # pep8-naming
+    "W",    # pycodestyle warnings
+    "B",    # flake8-bugbear (common bugs)
+    "C90",  # mccabe complexity
+    "UP",   # pyupgrade (modernize syntax)
+    "S",    # flake8-bandit (security)
+    "SIM",  # flake8-simplify
+]
+ignore = [
+    "S101",  # assert usage (fine in tests)
+]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 15
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S"]               # Tests: skip security checks
+"fixtures/*" = ["S"]            # Fixture servers: intentionally vulnerable
 
 [tool.bandit]
 exclude_dirs = ["tests", "fixtures"]
