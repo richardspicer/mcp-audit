@@ -10,8 +10,7 @@ the tool's response to determine if injection occurred.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-
+from dataclasses import dataclass
 
 # Unique marker that should never appear in legitimate output.
 # If this shows up in a tool response, injection succeeded.

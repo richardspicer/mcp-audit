@@ -114,9 +114,7 @@ class MCPConnection:
         return conn
 
     @classmethod
-    def streamable_http(
-        cls, url: str, headers: dict[str, str] | None = None
-    ) -> MCPConnection:
+    def streamable_http(cls, url: str, headers: dict[str, str] | None = None) -> MCPConnection:
         """Create a connection to a Streamable HTTP MCP server.
 
         Args:
@@ -171,9 +169,7 @@ class MCPConnection:
         except Exception as exc:
             # Clean up anything we opened if initialization fails
             await self._exit_stack.aclose()
-            raise ConnectionError(
-                f"Failed to connect via {self.transport_type}: {exc}"
-            ) from exc
+            raise ConnectionError(f"Failed to connect via {self.transport_type}: {exc}") from exc
 
     async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:  # noqa: ANN001
         """Disconnect from the server, clean up all resources."""

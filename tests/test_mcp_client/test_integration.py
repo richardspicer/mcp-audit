@@ -101,4 +101,7 @@ class TestEnumeration:
             ctx = await enumerate_server(conn)
 
             file_search = next(t for t in ctx.tools if t["name"] == "file_search")
-            assert "pattern" in file_search["description"].lower() or "file" in file_search["description"].lower()
+            assert (
+                "pattern" in file_search["description"].lower()
+                or "file" in file_search["description"].lower()
+            )

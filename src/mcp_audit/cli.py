@@ -8,9 +8,6 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import sys
-from pathlib import Path
-from typing import Optional
 
 import typer
 from rich.console import Console
@@ -20,7 +17,6 @@ from mcp_audit.mcp_client.connector import MCPConnection
 from mcp_audit.mcp_client.discovery import enumerate_server
 from mcp_audit.orchestrator import run_scan
 from mcp_audit.reporting.json_report import generate_json_report
-from mcp_audit.scanner.registry import list_scanner_names
 
 app = typer.Typer(
     name="mcp-audit",
@@ -72,15 +68,15 @@ def scan(
         ...,
         help="Transport type: 'stdio', 'sse', or 'streamable-http'",
     ),
-    command: Optional[str] = typer.Option(
+    command: str | None = typer.Option(
         None,
         help="Server command for stdio transport (e.g., 'python my_server.py')",
     ),
-    url: Optional[str] = typer.Option(
+    url: str | None = typer.Option(
         None,
         help="Server URL for SSE or Streamable HTTP transport",
     ),
-    checks: Optional[str] = typer.Option(
+    checks: str | None = typer.Option(
         None,
         help="Comma-separated list of checks to run (e.g., 'injection')",
     ),
@@ -90,7 +86,8 @@ def scan(
     ),
     verbose: bool = typer.Option(
         False,
-        "--verbose", "-v",
+        "--verbose",
+        "-v",
         help="Enable verbose logging",
     ),
 ) -> None:
@@ -115,13 +112,13 @@ def scan(
             result = await run_scan(conn, check_names=check_names)
 
             # Summary
-            console.print(f"\n[bold]Scan Complete[/bold]")
+            console.print("\n[bold]Scan Complete[/bold]")
             console.print(f"  Tools scanned: {result.tools_scanned}")
             console.print(f"  Scanners run:  {', '.join(result.scanners_run)}")
             console.print(f"  Findings:      {len(result.findings)}")
 
             if result.findings:
-                console.print(f"\n[bold red]Findings:[/bold red]")
+                console.print("\n[bold red]Findings:[/bold red]")
                 for f in result.findings:
                     sev_color = {
                         "critical": "red",
@@ -131,8 +128,7 @@ def scan(
                         "info": "dim",
                     }.get(f.severity.value, "white")
                     console.print(
-                        f"  [{sev_color}]{f.severity.value.upper()}[/{sev_color}] "
-                        f"{f.title}"
+                        f"  [{sev_color}]{f.severity.value.upper()}[/{sev_color}] {f.title}"
                     )
                     console.print(f"    {f.description}")
                     console.print(f"    Remediation: {f.remediation}")
@@ -151,10 +147,10 @@ def scan(
         asyncio.run(_run())
     except ConnectionError as exc:
         console.print(f"[red]Connection failed:[/red] {exc}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from exc
     except KeyboardInterrupt:
         console.print("\n[yellow]Scan interrupted.[/yellow]")
-        raise typer.Exit(130)
+        raise typer.Exit(130) from None
 
 
 @app.command(name="list-checks")
@@ -197,11 +193,11 @@ def enumerate(
         ...,
         help="Transport type: 'stdio', 'sse', or 'streamable-http'",
     ),
-    command: Optional[str] = typer.Option(
+    command: str | None = typer.Option(
         None,
         help="Server command for stdio transport",
     ),
-    url: Optional[str] = typer.Option(
+    url: str | None = typer.Option(
         None,
         help="Server URL for SSE or Streamable HTTP transport",
     ),
@@ -225,9 +221,7 @@ def enumerate(
                 table.add_column("Description")
                 table.add_column("Parameters")
                 for tool in ctx.tools:
-                    params = ", ".join(
-                        tool.get("inputSchema", {}).get("properties", {}).keys()
-                    )
+                    params = ", ".join(tool.get("inputSchema", {}).get("properties", {}).keys())
                     table.add_row(tool["name"], tool.get("description", "")[:80], params)
                 console.print(table)
 
@@ -245,7 +239,7 @@ def enumerate(
         asyncio.run(_run())
     except ConnectionError as exc:
         console.print(f"[red]Connection failed:[/red] {exc}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from exc
 
 
 @app.command()
@@ -258,7 +252,7 @@ def report(
         "html",
         help="Report format: 'html', 'json', or 'sarif'",
     ),
-    output: Optional[str] = typer.Option(
+    output: str | None = typer.Option(
         None,
         help="Output file path (defaults to input path with new extension)",
     ),

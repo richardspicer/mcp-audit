@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from mcp_audit.mcp_client.connector import MCPConnection
@@ -38,7 +38,7 @@ class ScanResult:
     server_info: dict[str, Any] = field(default_factory=dict)
     tools_scanned: int = 0
     scanners_run: list[str] = field(default_factory=list)
-    started_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    started_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     finished_at: datetime | None = None
     errors: list[dict[str, str]] = field(default_factory=list)
 
@@ -101,15 +101,15 @@ async def run_scan(
         try:
             findings = await scanner.scan(context)
             result.findings.extend(findings)
-            logger.info(
-                "Scanner %s complete — %d findings", scanner.name, len(findings)
-            )
+            logger.info("Scanner %s complete — %d findings", scanner.name, len(findings))
         except Exception as exc:
             logger.error("Scanner %s failed: %s", scanner.name, exc, exc_info=True)
-            result.errors.append({
-                "scanner": scanner.name,
-                "error": str(exc),
-            })
+            result.errors.append(
+                {
+                    "scanner": scanner.name,
+                    "error": str(exc),
+                }
+            )
 
-    result.finished_at = datetime.now(timezone.utc)
+    result.finished_at = datetime.now(UTC)
     return result

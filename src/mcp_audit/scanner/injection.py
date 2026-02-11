@@ -12,7 +12,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from mcp_audit.payloads.injection import CANARY, get_injection_payloads
+from mcp_audit.payloads.injection import get_injection_payloads
 from mcp_audit.scanner.base import BaseScanner, Finding, ScanContext, Severity
 
 logger = logging.getLogger("mcp_audit.scanner.injection")
@@ -41,11 +41,7 @@ def _get_string_params(tool: dict[str, Any]) -> list[str]:
     """
     schema = tool.get("inputSchema", {})
     properties = schema.get("properties", {})
-    return [
-        name
-        for name, prop in properties.items()
-        if prop.get("type") == "string"
-    ]
+    return [name for name, prop in properties.items() if prop.get("type") == "string"]
 
 
 def _build_args(
@@ -157,9 +153,7 @@ class InjectionScanner(BaseScanner):
 
             for param_name in string_params:
                 for payload in payloads:
-                    finding = await self._test_param(
-                        context, tool, tool_name, param_name, payload
-                    )
+                    finding = await self._test_param(context, tool, tool_name, param_name, payload)
                     if finding:
                         findings.append(finding)
                         # One confirmed injection per param is enough —
@@ -196,7 +190,10 @@ class InjectionScanner(BaseScanner):
         except Exception as exc:
             logger.debug(
                 "Tool call failed: %s.%s with %s — %s",
-                tool_name, param_name, payload.technique, exc,
+                tool_name,
+                param_name,
+                payload.technique,
+                exc,
             )
             return None
 
@@ -208,13 +205,17 @@ class InjectionScanner(BaseScanner):
                 logger.debug(
                     "Canary found but full payload reflected — likely echo, not injection: "
                     "%s.%s via %s",
-                    tool_name, param_name, payload.technique,
+                    tool_name,
+                    param_name,
+                    payload.technique,
                 )
                 return None
 
             logger.warning(
                 "INJECTION CONFIRMED: %s.%s via %s",
-                tool_name, param_name, payload.technique,
+                tool_name,
+                param_name,
+                payload.technique,
             )
             return Finding(
                 rule_id=f"MCP05-{payload.technique}",

@@ -8,7 +8,6 @@ to the report command for generating HTML/SARIF.
 from __future__ import annotations
 
 import json
-from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -59,9 +58,7 @@ def generate_json_report(scan_result, output_path: str | Path) -> Path:
             "scanners_run": scan_result.scanners_run,
             "started_at": scan_result.started_at.isoformat(),
             "finished_at": (
-                scan_result.finished_at.isoformat()
-                if scan_result.finished_at
-                else None
+                scan_result.finished_at.isoformat() if scan_result.finished_at else None
             ),
         },
         "summary": {
