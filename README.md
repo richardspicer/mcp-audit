@@ -27,14 +27,13 @@ Maps findings to the [OWASP MCP Top 10](https://owasp.org/www-project-mcp-top-10
 
 Requires Python 3.11+.
 
+Requires [uv](https://docs.astral.sh/uv/) for dependency management.
+
 ```bash
 # Clone and install in development mode
 git clone https://github.com/richardspicer/mcp-audit.git
 cd mcp-audit
 uv sync
-
-# Or with pip
-pip install -e ".[dev,fixtures]"
 ```
 
 ## Usage
