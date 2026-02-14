@@ -26,6 +26,12 @@ repos:
         args: ['--fix']
       - id: ruff-format
 
+  # Secrets detection — catches API keys, tokens, passwords before they hit the repo
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.0
+    hooks:
+      - id: gitleaks
+
   # Mypy type checker
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.19.1
