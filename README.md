@@ -23,6 +23,15 @@ Maps findings to the [OWASP MCP Top 10](https://owasp.org/www-project-mcp-top-10
 | MCP09 | Shadow MCP Servers | 🔜 Planned |
 | MCP10 | Context Over-Sharing | 🔜 Planned |
 
+### Planned Enhancements
+
+- **Schema-derived adversarial payloads** — auto-generate CWE-mapped payloads from tool JSON schemas, constrained to LLM-plausible inputs
+- **Fingerprinting in `enumerate`** — framework signature detection (FastMCP/official SDK/custom), auth method detection, known CVE matching against tool signatures
+
+### Manual Testing Companion
+
+For interactive MCP traffic inspection, modification, and replay, see [mcp-proxy](https://github.com/richardspicer/mcp-proxy) — the manual testing counterpart to mcp-audit's automated scanning.
+
 ## Installation
 
 Requires Python 3.11+.
