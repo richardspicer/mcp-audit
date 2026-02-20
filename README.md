@@ -75,7 +75,7 @@ mcp-audit report --input results/scan.json --format html
 
 ## Project
 
-Part of the [CounterAgent](https://richardspicer.io) research program — open source security tooling for testing attack chains targeting autonomous AI agents.
+Part of the [CounterAgent](https://github.com/richardspicer/counteragent) research program — open source security tooling for testing attack chains targeting autonomous AI agents.
 
 ## Legal
 
