@@ -1,0 +1,12 @@
+feat: add tool poisoning scanner (MCP03) with fixture and tests
+
+- ToolPoisoningScanner with 5 checks: embedded instructions (MCP03-001),
+  hidden Unicode (MCP03-002), homoglyphs (MCP03-003), long descriptions
+  (MCP03-004), duplicate/similar tool names (MCP03-005)
+- 20 instruction patterns including MPMA preference manipulation
+- Hidden Unicode detection (zero-width, directional overrides, format chars)
+- Homoglyph detection (Cyrillic, Greek lookalikes)
+- Levenshtein similarity for tool name shadowing
+- vuln_tool_poison.py fixture with poisoned and clean tools
+- 22 new tests (72 total passing)
+- Registered in scanner registry
