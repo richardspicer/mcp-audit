@@ -73,6 +73,8 @@ class ScanContext:
         resources: List of resources exposed by the server.
         prompts: List of prompts exposed by the server.
         transport_type: Transport used to connect ('stdio', 'sse', 'streamable-http').
+        connection_url: Server URL for HTTP-based transports (SSE, Streamable HTTP).
+            None for stdio connections. Used by auth scanner for TLS and port checks.
         session: The active MCP ClientSession for calling tools/resources.
             Type is Any to avoid coupling scanner modules to the SDK.
         config: Scanner-specific configuration overrides.
@@ -83,6 +85,7 @@ class ScanContext:
     resources: list[dict[str, Any]] = field(default_factory=list)
     prompts: list[dict[str, Any]] = field(default_factory=list)
     transport_type: str = "stdio"
+    connection_url: str | None = None
     session: Any = None
     config: dict[str, Any] = field(default_factory=dict)
 

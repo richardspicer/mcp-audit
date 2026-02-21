@@ -143,11 +143,17 @@ async def enumerate_server(conn: MCPConnection) -> ScanContext:
         except Exception:
             logger.warning("Failed to enumerate prompts", exc_info=True)
 
+    # Extract connection URL for HTTP-based transports (auth scanner needs this)
+    connection_url: str | None = None
+    if conn.transport_type in ("sse", "streamable-http"):
+        connection_url = conn._transport_args.get("url")
+
     return ScanContext(
         server_info=info_dict,
         tools=tools,
         resources=resources,
         prompts=prompts,
         transport_type=conn.transport_type,
+        connection_url=connection_url,
         session=session,
     )
