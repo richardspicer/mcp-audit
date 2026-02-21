@@ -1,5 +1,9 @@
 # mcp-audit
 
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
+
 **Security auditor for MCP (Model Context Protocol) server implementations.**
 
 Maps findings to the [OWASP MCP Top 10](https://owasp.org/www-project-mcp-top-10/) vulnerability taxonomy.
