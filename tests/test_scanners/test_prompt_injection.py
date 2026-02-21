@@ -196,7 +196,7 @@ class TestHelpers:
         """Flags external URLs."""
         urls = _find_suspicious_urls("Visit https://evil.com/steal?data=yes")
         assert len(urls) == 1
-        assert "evil.com" in urls[0]
+        assert urls[0] == "https://evil.com/steal?data=yes"
 
     def test_suspicious_urls_benign(self):
         """Allows benign URLs."""
