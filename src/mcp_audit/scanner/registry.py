@@ -10,6 +10,7 @@ from mcp_audit.scanner.auth import AuthScanner
 from mcp_audit.scanner.base import BaseScanner
 from mcp_audit.scanner.injection import InjectionScanner
 from mcp_audit.scanner.permissions import PermissionsScanner
+from mcp_audit.scanner.prompt_injection import PromptInjectionScanner
 from mcp_audit.scanner.tool_poisoning import ToolPoisoningScanner
 
 # All available scanner classes, keyed by their CLI name.
@@ -19,6 +20,7 @@ _REGISTRY: dict[str, type[BaseScanner]] = {
     "auth": AuthScanner,
     "permissions": PermissionsScanner,
     "tool_poisoning": ToolPoisoningScanner,
+    "prompt_injection": PromptInjectionScanner,
 }
 
 

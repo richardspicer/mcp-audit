@@ -1,0 +1,13 @@
+feat: add prompt injection scanner (MCP06) with fixture and tests
+
+- PromptInjectionScanner with 5 checks: injection patterns in responses
+  (MCP06-001), hidden Unicode in responses (MCP06-002), suspicious URLs
+  (MCP06-003), cross-tool manipulation references (MCP06-004), anomalous
+  response length (MCP06-005)
+- Active scanner: calls tools with safe args, analyzes response content
+- Reuses injection pattern and hidden Unicode detection from tool_poisoning
+- Suspicious URL detection (IP addresses, known exfil patterns, data URIs)
+- Cross-tool reference detection (responses mentioning other tools by name)
+- vuln_prompt_inject.py fixture with poisoned responses and clean tools
+- 23 new tests (95 total passing)
+- Registered in scanner registry
