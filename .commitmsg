@@ -1,0 +1,12 @@
+feat: add audit telemetry scanner (MCP08) with fixture and tests
+
+- AuditTelemetryScanner with 5 checks: missing server identification
+  (MCP08-001), error information disclosure (MCP08-002), no logging
+  capability (MCP08-003), sensitive data in errors (MCP08-004),
+  missing protocol version (MCP08-005)
+- Hybrid scanner: static metadata checks + active error triggering
+- Error disclosure detection (tracebacks, file paths, SQL, package paths)
+- Sensitive data detection (tokens, emails, IPs, keys, connection strings)
+- vuln_audit_telemetry.py fixture with verbose errors and no logging
+- 22 new tests (117 total passing)
+- Registered in scanner registry
