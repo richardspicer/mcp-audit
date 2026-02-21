@@ -6,6 +6,7 @@ orchestrator use this to discover, filter, and instantiate scanners.
 
 from __future__ import annotations
 
+from mcp_audit.scanner.audit_telemetry import AuditTelemetryScanner
 from mcp_audit.scanner.auth import AuthScanner
 from mcp_audit.scanner.base import BaseScanner
 from mcp_audit.scanner.injection import InjectionScanner
@@ -21,6 +22,7 @@ _REGISTRY: dict[str, type[BaseScanner]] = {
     "permissions": PermissionsScanner,
     "tool_poisoning": ToolPoisoningScanner,
     "prompt_injection": PromptInjectionScanner,
+    "audit_telemetry": AuditTelemetryScanner,
 }
 
 
