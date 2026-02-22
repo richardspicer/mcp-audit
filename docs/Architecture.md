@@ -258,6 +258,7 @@ class ServerInfo(BaseModel):
 | `list-checks` | List available scanner modules and their OWASP mapping |
 | `report` | Generate report from saved scan results |
 | `enumerate` | Enumerate server capabilities without scanning |
+| `update-cves` | Refresh local CVE database from GitHub Advisory Database (planned) |
 
 ### Scan Options
 
@@ -600,3 +601,22 @@ Auto-generate adversarial payloads from tool JSON schemas. For each parameter ty
 **Location:** `src/mcp_audit/mcp_client/discovery.py`
 
 Extend the `enumerate` command to produce richer fingerprints: framework signature detection (FastMCP/official SDK/custom), authentication method detection, and known CVE matching against tool signatures. Makes mcp-audit useful for bounty reconnaissance.
+
+### CVE Advisory Database Integration
+**Location:** `src/mcp_audit/scanner/supply_chain.py` (static dict) → future standalone module
+
+The supply_chain scanner (MCP04) ships with a static CVE database for known MCP vulnerabilities. A planned `update-cves` CLI command will query the GitHub Advisory Database REST API (`GET https://api.github.com/advisories`) to refresh this data automatically.
+
+GitHub Advisory Database is the preferred source over NVD because MCP CVEs are published there first, it includes GHSA-only advisories that may never get CVE IDs, and it provides structured affected version ranges per ecosystem (npm, pip) without requiring authentication.
+
+**Planned CLI:**
+```
+mcp-audit update-cves [--since YYYY-MM-DD]
+```
+
+**Implementation phases:**
+1. Static dict in supply_chain.py (ships with scanner)
+2. `update-cves` command with JSON cache file (post-10/10 scanner completion)
+3. Integration with `enumerate` fingerprinting for CVE matching during reconnaissance
+
+Cross-tool design note: `counteragent/docs/github-advisory-integration.md`
