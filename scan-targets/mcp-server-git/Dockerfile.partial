@@ -1,0 +1,16 @@
+FROM python:3.12-slim
+
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+
+RUN pip install "mcp-server-git==2025.11.25"
+
+RUN mkdir -p /repos/test-repo && \
+    cd /repos/test-repo && \
+    git init && \
+    git config user.email "test@test.com" && \
+    git config user.name "Test" && \
+    echo "# Test Repository" > README.md && \
+    git add . && \
+    git commit -m "initial commit"
+
+ENTRYPOINT ["python", "-m", "mcp_server_git", "--repository", "/repos/test-repo"]

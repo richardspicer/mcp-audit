@@ -71,6 +71,8 @@ mcp-audit enumerate --transport stdio --command "python my_server.py"
 mcp-audit report --input results/scan.json --format html
 ```
 
+**Need something to scan?** The [`scan-targets/`](scan-targets/) directory has Dockerized MCP servers with known vulnerabilities, pinned at specific versions for reproducible testing.
+
 ## Output Formats
 
 - **JSON** — Machine-readable findings for programmatic use
