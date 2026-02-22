@@ -36,3 +36,6 @@ results/
 reports/
 *.sarif
 .commitmsg
+
+# Claude Code
+.claude/
