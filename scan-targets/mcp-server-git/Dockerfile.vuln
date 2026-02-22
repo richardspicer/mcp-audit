@@ -1,0 +1,25 @@
+FROM python:3.12-slim
+
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+
+RUN pip install "mcp-server-git==2025.7.1"
+
+# Test repository for the server to operate on
+RUN mkdir -p /repos/test-repo && \
+    cd /repos/test-repo && \
+    git init && \
+    git config user.email "test@test.com" && \
+    git config user.name "Test" && \
+    echo "# Test Repository" > README.md && \
+    echo "This is a test file for mcp-audit scanning." >> README.md && \
+    mkdir -p src && \
+    echo "print('hello world')" > src/main.py && \
+    git add . && \
+    git commit -m "initial commit"
+
+# Directory outside repo boundary to test path escape
+RUN mkdir -p /sensitive-data && \
+    echo "database_password=hunter2" > /sensitive-data/secrets.txt && \
+    echo "api_key=sk-FAKE-1234567890abcdef" >> /sensitive-data/secrets.txt
+
+ENTRYPOINT ["python", "-m", "mcp_server_git", "--repository", "/repos/test-repo"]

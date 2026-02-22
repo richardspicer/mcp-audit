@@ -11,7 +11,7 @@ import pytest
 from mcp_audit.mcp_client.connector import MCPConnection
 from mcp_audit.mcp_client.discovery import enumerate_server
 from mcp_audit.scanner.auth import AuthScanner, _classify_tool_sensitivity, _extract_url_components
-from mcp_audit.scanner.base import ScanContext
+from mcp_audit.scanner.base import ScanContext, Severity
 
 VULN_AUTH_SERVER = "fixtures/vulnerable_servers/vuln_auth.py"
 PYTHON = sys.executable
@@ -50,8 +50,8 @@ class TestAuthScanner:
             assert len(invoke_findings) == 1, "Should detect unauthenticated invocation"
 
     @pytest.mark.asyncio
-    async def test_sensitive_tools_escalate_severity(self):
-        """Sensitive tools should escalate finding severity."""
+    async def test_stdio_findings_are_info_severity(self):
+        """Stdio transport findings should be INFO severity."""
         async with MCPConnection.stdio(
             command=PYTHON,
             args=[VULN_AUTH_SERVER],
@@ -61,8 +61,10 @@ class TestAuthScanner:
             findings = await scanner.scan(ctx)
 
             enum_finding = next(f for f in findings if f.rule_id == "MCP07-001")
-            # vuln_auth has sensitive tools (read_config, list_secrets, execute_query)
-            assert enum_finding.severity.value == "high"
+            invoke_finding = next(f for f in findings if f.rule_id == "MCP07-002")
+            # stdio transport → INFO severity regardless of sensitive tools
+            assert enum_finding.severity == Severity.INFO
+            assert invoke_finding.severity == Severity.INFO
             assert len(enum_finding.metadata["sensitive_tools"]) >= 1
 
     @pytest.mark.asyncio
@@ -174,6 +176,92 @@ class TestTransportChecks:
         finding = scanner._check_default_port(ctx)
 
         assert finding is None
+
+
+class TestTransportAwareSeverity:
+    """Test transport-aware severity adjustments using synthetic ScanContext."""
+
+    def test_stdio_enumeration_info_severity(self):
+        """Stdio transport should produce INFO severity for enumeration."""
+        ctx = ScanContext(
+            transport_type="stdio",
+            tools=[
+                {"name": "read_config", "description": "Read config file"},
+                {"name": "list_secrets", "description": "List all secrets"},
+            ],
+        )
+        scanner = AuthScanner()
+        finding = scanner._check_unauth_enumeration(ctx)
+
+        assert finding is not None
+        assert finding.severity == Severity.INFO
+        assert "stdio transport" in finding.description
+        assert finding.metadata["transport"] == "stdio"
+        assert finding.metadata["transport_note"] is not None
+
+    @pytest.mark.asyncio
+    async def test_stdio_invocation_info_severity(self):
+        """Stdio transport should produce INFO severity for invocation."""
+        ctx = ScanContext(
+            transport_type="stdio",
+            tools=[
+                {"name": "read_config", "description": "Read config file"},
+            ],
+            session=None,  # No session → returns None, tested via fixture instead
+        )
+        scanner = AuthScanner()
+        # Without a session, invocation check returns None. The fixture-based
+        # test already verifies INFO severity for invocation on stdio.
+        finding = await scanner._check_unauth_invocation(ctx)
+        assert finding is None
+
+    def test_sse_enumeration_keeps_high_severity(self):
+        """SSE transport with sensitive tools should keep HIGH severity."""
+        ctx = ScanContext(
+            transport_type="sse",
+            connection_url="http://localhost:8080/sse",
+            tools=[
+                {"name": "read_config", "description": "Read config file"},
+                {"name": "execute_query", "description": "Run database query"},
+            ],
+        )
+        scanner = AuthScanner()
+        finding = scanner._check_unauth_enumeration(ctx)
+
+        assert finding is not None
+        assert finding.severity == Severity.HIGH
+        assert finding.metadata["transport"] == "sse"
+        assert finding.metadata["transport_note"] is None
+
+    def test_sse_enumeration_medium_without_sensitive(self):
+        """SSE transport without sensitive tools should be MEDIUM severity."""
+        ctx = ScanContext(
+            transport_type="sse",
+            connection_url="http://localhost:8080/sse",
+            tools=[
+                {"name": "echo", "description": "Echo a message back"},
+                {"name": "ping", "description": "Check health"},
+            ],
+        )
+        scanner = AuthScanner()
+        finding = scanner._check_unauth_enumeration(ctx)
+
+        assert finding is not None
+        assert finding.severity == Severity.MEDIUM
+
+    def test_transport_in_enumeration_metadata(self):
+        """Enumeration finding metadata includes transport info."""
+        ctx = ScanContext(
+            transport_type="stdio",
+            tools=[{"name": "echo", "description": "Echo a message"}],
+        )
+        scanner = AuthScanner()
+        finding = scanner._check_unauth_enumeration(ctx)
+
+        assert finding is not None
+        assert "transport" in finding.metadata
+        assert "transport_note" in finding.metadata
+        assert finding.metadata["transport"] == "stdio"
 
 
 class TestHelpers:
