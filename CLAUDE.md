@@ -144,7 +144,7 @@ uv sync --extra dev --extra fixtures
 - Fixture servers are runnable: `python -m fixtures.vulnerable_servers.vuln_<name>`
 - Test file naming matches scanner: `test_<scanner_name>.py`
 
-- **Architecture.md:** Update at end of session if new modules, endpoints, or data models were introduced
+- **`docs/Architecture.md`:** Update at end of session if new modules, endpoints, or data models were introduced
 
 ## CLI Usage
 
