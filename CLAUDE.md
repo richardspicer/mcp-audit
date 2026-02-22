@@ -9,7 +9,7 @@ src/mcp_audit/
 ├── cli.py                    # Typer CLI (scan, list-checks, enumerate)
 ├── orchestrator.py           # connect → enumerate → scan → report pipeline
 ├── mcp_client/               # MCP connection (stdio, SSE, Streamable HTTP)
-│   ├── connection.py         # Transport-level connection management
+│   ├── connector.py         # Transport-level connection management
 │   └── discovery.py          # Server enumeration, populates ScanContext
 ├── scanner/
 │   ├── base.py               # BaseScanner, Finding, ScanContext, Severity
@@ -72,7 +72,7 @@ Findings use rule IDs like `MCP07-001` (OWASP category + sequential check number
 - Integration tests connect to fixture servers via `MCPConnection.stdio`
 - Synthetic tests construct `ScanContext` directly for unit-level checks
 - Helper functions get their own unit tests
-- **All 117 tests must pass before committing**
+- **All tests must pass before committing**
 
 Run tests:
 ```
@@ -106,7 +106,7 @@ The CMD shell corrupts `git commit -m "message with spaces"`. Always use:
 ```
 echo "feat: description here" > .commitmsg
 git commit -F .commitmsg
-del .commitmsg
+rm .commitmsg
 ```
 
 This applies to any shell command where arguments contain spaces, commas, or parentheses.
@@ -131,10 +131,10 @@ If pre-commit fails, fix issues and re-stage before committing.
 
 Managed via `uv` with `pyproject.toml`. Sync with:
 ```
-uv sync --extra dev --extra fixtures
+uv sync --group dev
 ```
 
-**Without `--extra dev --extra fixtures`, dev dependencies get stripped.**
+**Without `--group dev`, dev dependencies get stripped.**
 
 ## Key Patterns to Follow
 
@@ -151,8 +151,7 @@ uv sync --extra dev --extra fixtures
 ```powershell
 mcp-audit scan --transport stdio --command "python my_server.py"
 mcp-audit scan --transport sse --url http://localhost:8080/sse
-mcp-audit scan --target targets/my_server.yaml
-mcp-audit scan --target targets/my_server.yaml --checks injection,auth
+mcp-audit scan --transport stdio --command "python my_server.py" --checks injection,auth
 mcp-audit list-checks
 mcp-audit enumerate --transport stdio --command "python my_server.py"
 mcp-audit report --input results/scan.json --format html
