@@ -143,3 +143,25 @@ uv sync --extra dev --extra fixtures
 - Fixtures include both vulnerable AND benign tools to test threshold logic
 - Fixture servers are runnable: `python -m fixtures.vulnerable_servers.vuln_<name>`
 - Test file naming matches scanner: `test_<scanner_name>.py`
+
+- **Architecture.md:** Update at end of session if new modules, endpoints, or data models were introduced
+
+## CLI Usage
+
+```powershell
+mcp-audit scan --transport stdio --command "python my_server.py"
+mcp-audit scan --transport sse --url http://localhost:8080/sse
+mcp-audit scan --target targets/my_server.yaml
+mcp-audit scan --target targets/my_server.yaml --checks injection,auth
+mcp-audit list-checks
+mcp-audit enumerate --transport stdio --command "python my_server.py"
+mcp-audit report --input results/scan.json --format html
+```
+
+After changes, smoke test: `mcp-audit list-checks`
+
+## Legal & Ethical
+
+- Only test systems you own, control, or have explicit permission to test
+- Responsible disclosure for all vulnerabilities — never publish exploits before vendor notification
+- Frame all tooling as defensive security testing tools (analogous to Metasploit, Burp Suite)
