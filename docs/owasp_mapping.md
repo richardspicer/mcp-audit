@@ -259,6 +259,13 @@ Security Guide)
 **Related CVEs:** CVE-2025-49596 (MCP Inspector — no auth, 0.0.0.0 binding, CSRF via
 browser)
 
+**Planned enhancements:**
+
+- CORS configuration audit — check for `Access-Control-Allow-Origin: *`
+- Origin validation — send requests with spoofed origin headers
+- Session management — check if server issues/expires session tokens
+- Binding detection — detect if server binds to `0.0.0.0` vs `127.0.0.1`
+
 ---
 
 ### MCP08: Lack of Audit and Telemetry ✅ Built
@@ -305,6 +312,10 @@ equivalent of Shadow IT.
 **Note:** Low priority for Phase 1. This is more of a network scanning concern than a
 per-server audit. May be better suited to a standalone utility or integration with existing
 network scanners.
+
+**Fingerprinting reference:** Recorded Future Nuclei template for CVE-2025-49596 detection:
+- Vulnerable: `GET /sse?transportType=stdio&command=echo&args=TEST` → 200 OK with `/message?sessionId=`
+- Patched: 401 Unauthorized with "Authentication required"
 
 ---
 
