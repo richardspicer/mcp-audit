@@ -476,6 +476,7 @@ Each fixture is a minimal, standalone MCP server written with FastMCP:
 | `vuln_prompt_inject.py` | MCP06 | Tool output containing prompt injection payload |
 | `vuln_auth.py` | MCP07 | Server with no authentication on sensitive tools |
 | `vuln_no_logging.py` | MCP08 | Server with no audit logging configured |
+| `vuln_shadow_servers.py` | MCP09 | Server exhibiting shadow/unmanaged deployment traits |
 | `vuln_context.py` | MCP10 | Server leaking context between sessions |
 
 ---
