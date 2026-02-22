@@ -19,7 +19,8 @@ src/mcp_audit/
 │   ├── permissions.py        # MCP02 — privilege escalation, tool analysis
 │   ├── tool_poisoning.py     # MCP03 — poisoned descriptions, Unicode tricks
 │   ├── prompt_injection.py   # MCP06 — injection patterns in tool responses
-│   └── audit_telemetry.py    # MCP08 — logging, error disclosure, metadata
+│   ├── audit_telemetry.py    # MCP08 — logging, error disclosure, metadata
+│   └── context_sharing.py    # MCP10 — session data leakage, resource oversharing
 ├── payloads/                 # Payload libraries per attack category
 ├── reporting/                # JSON output (SARIF planned)
 └── utils/
@@ -38,7 +39,7 @@ async def scan(self, context: ScanContext) -> list[Finding]
 Scanner types:
 - **Static** (permissions, tool_poisoning): Analyze `context.tools` metadata only
 - **Active** (injection, prompt_injection): Call tools via `context.session`
-- **Hybrid** (audit_telemetry): Check metadata + trigger errors actively
+- **Hybrid** (audit_telemetry, context_sharing): Check metadata + trigger errors actively
 - **Connection-level** (auth): Check transport, ports, TLS
 
 Findings use rule IDs like `MCP07-001` (OWASP category + sequential check number).
@@ -158,6 +159,25 @@ mcp-audit report --input results/scan.json --format html
 ```
 
 After changes, smoke test: `mcp-audit list-checks`
+
+## Claude Code Guardrails
+
+### Verification Scope
+- Run only the tests for new/changed code, not the full suite
+- Smoke test the CLI after changes
+- Full suite verification is the developer's responsibility post-commit
+
+### Timeout Policy
+- If any test run exceeds 60 seconds, stop and identify the stuck test
+- Do not set longer timeouts and wait — diagnose instead
+
+### Process Hygiene
+- Before running tests, kill any orphaned python/node processes from previous runs
+- After killing a stuck process, clean up zombies before retrying
+
+### Failure Mode
+- If verification hits a problem you can't resolve in 2 attempts, commit the work to the branch and report what failed
+- Do not spin on the same failure
 
 ## Legal & Ethical
 
