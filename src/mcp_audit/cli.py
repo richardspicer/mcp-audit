@@ -164,7 +164,7 @@ def list_checks() -> None:
     all_checks = [
         ("injection", "MCP05", "Command Injection via Tools"),
         ("auth", "MCP07", "Insufficient Authentication/Authorization"),
-        ("tokens", "MCP01", "Token Mismanagement"),
+        ("token_exposure", "MCP01", "Token Mismanagement & Secret Exposure"),
         ("permissions", "MCP02", "Privilege Escalation via Tools"),
         ("tool_poisoning", "MCP03", "Tool Poisoning"),
         ("prompt_injection", "MCP06", "Indirect Prompt Injection"),

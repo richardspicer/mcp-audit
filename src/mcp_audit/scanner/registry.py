@@ -13,6 +13,7 @@ from mcp_audit.scanner.context_sharing import ContextSharingScanner
 from mcp_audit.scanner.injection import InjectionScanner
 from mcp_audit.scanner.permissions import PermissionsScanner
 from mcp_audit.scanner.prompt_injection import PromptInjectionScanner
+from mcp_audit.scanner.token_exposure import TokenExposureScanner
 from mcp_audit.scanner.tool_poisoning import ToolPoisoningScanner
 
 # All available scanner classes, keyed by their CLI name.
@@ -25,6 +26,7 @@ _REGISTRY: dict[str, type[BaseScanner]] = {
     "prompt_injection": PromptInjectionScanner,
     "audit_telemetry": AuditTelemetryScanner,
     "context_sharing": ContextSharingScanner,
+    "token_exposure": TokenExposureScanner,
 }
 
 
