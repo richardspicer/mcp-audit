@@ -185,8 +185,25 @@ class AuthScanner(BaseScanner):
                 f"{', '.join(sensitive_names)}."
             )
 
-        # Escalate severity if sensitive tools are exposed
-        severity = Severity.HIGH if sensitive_tools else Severity.MEDIUM
+        # Severity depends on transport: stdio is local subprocess with no
+        # network exposure, so auth findings are informational only.
+        if context.transport_type == "stdio":
+            severity = Severity.INFO
+            description += (
+                " Note: This server uses stdio transport (local subprocess), "
+                "which has no network exposure. Authentication is typically "
+                "enforced at the application level, not the transport level."
+            )
+        elif sensitive_tools:
+            severity = Severity.HIGH
+        else:
+            severity = Severity.MEDIUM
+
+        transport_note = (
+            "stdio (local subprocess, no network exposure)"
+            if context.transport_type == "stdio"
+            else None
+        )
 
         return Finding(
             rule_id="MCP07-001",
@@ -200,9 +217,11 @@ class AuthScanner(BaseScanner):
             ),
             remediation=(
                 "Require authentication tokens or API keys before allowing "
-                "capability enumeration. For stdio servers, implement "
-                "application-level auth checks. For HTTP servers, require "
-                "Bearer tokens or OAuth credentials on all endpoints."
+                "capability enumeration. For stdio servers launched as "
+                "subprocesses, authentication is typically managed by the "
+                "client application. Consider restricting which tools are "
+                "exposed based on the calling context. For HTTP servers, "
+                "require Bearer tokens or OAuth credentials on all endpoints."
             ),
             metadata={
                 "tools_count": len(context.tools),
@@ -210,6 +229,7 @@ class AuthScanner(BaseScanner):
                 "prompts_count": len(context.prompts),
                 "sensitive_tools": sensitive_names,
                 "transport": context.transport_type,
+                "transport_note": transport_note,
             },
         )
 
@@ -250,6 +270,31 @@ class AuthScanner(BaseScanner):
 
             is_sensitive = _classify_tool_sensitivity(tool)
 
+            description = (
+                f"Tool '{tool_name}' was successfully called without "
+                f"providing authentication credentials. "
+                f"{'This tool appears to handle sensitive operations.' if is_sensitive else ''}"
+            )
+
+            # Severity depends on transport: stdio has no network exposure.
+            if context.transport_type == "stdio":
+                severity = Severity.INFO
+                description += (
+                    " Note: This server uses stdio transport (local subprocess), "
+                    "which has no network exposure. The client process already "
+                    "has full control over the server."
+                )
+            elif is_sensitive:
+                severity = Severity.CRITICAL
+            else:
+                severity = Severity.HIGH
+
+            transport_note = (
+                "stdio (local subprocess, no network exposure)"
+                if context.transport_type == "stdio"
+                else None
+            )
+
             logger.warning(
                 "UNAUTH INVOCATION: %s callable without authentication",
                 tool_name,
@@ -258,12 +303,8 @@ class AuthScanner(BaseScanner):
                 rule_id="MCP07-002",
                 owasp_id="MCP07",
                 title=f"Unauthenticated tool invocation: '{tool_name}'",
-                description=(
-                    f"Tool '{tool_name}' was successfully called without "
-                    f"providing authentication credentials. "
-                    f"{'This tool appears to handle sensitive operations.' if is_sensitive else ''}"
-                ),
-                severity=Severity.CRITICAL if is_sensitive else Severity.HIGH,
+                description=description,
+                severity=severity,
                 evidence=(
                     f"Tool '{tool_name}' returned a response "
                     f"({len(response_text)} chars) without authentication"
@@ -278,6 +319,8 @@ class AuthScanner(BaseScanner):
                     "tool_tested": tool_name,
                     "response_length": len(response_text),
                     "is_sensitive": is_sensitive,
+                    "transport": context.transport_type,
+                    "transport_note": transport_note,
                 },
             )
 
