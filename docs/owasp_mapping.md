@@ -21,7 +21,7 @@ How `mcp-audit` maps to the [OWASP MCP Top 10](https://owasp.org/www-project-mcp
 | MCP07 | Insufficient Authentication & Authorization | `auth.py` | Planned | **High — next** |
 | MCP08 | Lack of Audit and Telemetry | `logging_audit.py` | Planned | Medium |
 | MCP09 | Shadow MCP Servers | `shadow_detection.py` | Planned | Low |
-| MCP10 | Context Injection & Over-Sharing | `context_sharing.py` | Planned | Medium |
+| MCP10 | Context Injection & Over-Sharing | `context_sharing.py` | ✅ Built | — |
 
 ### Testability Split
 
@@ -264,23 +264,27 @@ network scanners.
 
 ---
 
-### MCP10: Context Injection & Over-Sharing
+### MCP10: Context Injection & Over-Sharing ✅ Built
 
 **Scanner module:** `scanner/context_sharing.py`
 
 Context windows that are shared, persistent, or insufficiently scoped, causing information
 leakage between sessions, agents, or users.
 
-**Testing approach:**
+**Current implementation:**
 
-- **Session isolation test** — connect with two sessions, check for data leakage between
-  them.
-- **Context persistence check** — disconnect and reconnect. Does the server retain previous
-  context?
-- **Resource isolation** — check if resources are scoped to the current session or user.
+- MCP10-001: Excessive context in tool responses — flags tools where response/input ratio exceeds 50x with 500+ char responses.
+- MCP10-002: Session data in tool responses — detects session_id, request_id, trace_id, worker_id patterns in tool responses.
+- MCP10-003: Error context leakage — triggers errors and checks for leaked session data and credentials.
+- MCP10-004: Resource over-exposure — static check for resources without user/session/tenant scoping in URI/name/description.
+- MCP10-005: Sensitive data in resources — reads resources and scans for passwords, API keys, PII, connection strings (escalates to HIGH for credentials).
 
-**Note:** Important for multi-tenant deployments. Harder to automate for single-server scans
-but basic isolation tests are feasible.
+Scanner type: Hybrid (static analysis of resources + active tool calls).
+
+**Planned enhancements:**
+
+- Session isolation test — connect with two sessions, check for data leakage between them.
+- Context persistence check — disconnect and reconnect, check if server retains previous context.
 
 ---
 
