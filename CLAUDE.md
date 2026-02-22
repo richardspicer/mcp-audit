@@ -165,7 +165,7 @@ After changes, smoke test: `mcp-audit list-checks`
 ### Verification Scope
 - Run only the tests for new/changed code, not the full suite
 - Smoke test the CLI after changes
-- Full suite verification is the developer's responsibility post-commit
+- Full suite verification is the developer's responsibility before merging
 
 ### Timeout Policy
 - If any test run exceeds 60 seconds, stop and identify the stuck test
