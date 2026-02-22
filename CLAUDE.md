@@ -179,6 +179,10 @@ After changes, smoke test: `mcp-audit list-checks`
 - If verification hits a problem you can't resolve in 2 attempts, commit the work to the branch and report what failed
 - Do not spin on the same failure
 
+### Boundaries
+- Do not create PRs or install tools. Push the branch and stop. The developer creates PRs manually.
+- Do not attempt to install CLI tools (gh, hub, etc.)
+
 ## Legal & Ethical
 
 - Only test systems you own, control, or have explicit permission to test
