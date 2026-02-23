@@ -34,10 +34,11 @@ def git_diff(repo_path: str, target: str) -> str:
     """
     # VULNERABLE: target passed directly as argument, not sanitized for flags.
     # If target is "--help", git interprets it as a flag instead of a ref.
+    cwd = repo_path if os.path.isdir(repo_path) else None
     try:
         result = subprocess.run(
             ["git", "diff", target],
-            cwd=repo_path,
+            cwd=cwd,
             capture_output=True,
             text=True,
             timeout=5,
@@ -60,8 +61,10 @@ def read_file(base_dir: str, filename: str) -> str:
     try:
         with open(path) as f:
             return f.read()
-    except Exception as e:
-        return f"Error: {e}"
+    except FileNotFoundError:
+        return "Error: file not found"
+    except Exception:
+        return "Error: could not read file"
 
 
 @mcp.tool()
@@ -72,13 +75,14 @@ def safe_git_diff(repo_path: str, target: str) -> str:
         repo_path: Path to the git repository.
         target: The git ref to diff against (branch, commit, tag).
     """
-    # SAFE: rejects flag-like arguments
-    if target.startswith("-"):
+    # SAFE: rejects flag-like arguments and control characters
+    if target.startswith("-") or "\n" in target or "\r" in target:
         return "Error: invalid ref"
+    cwd = repo_path if os.path.isdir(repo_path) else None
     try:
         result = subprocess.run(
             ["git", "diff", target],
-            cwd=repo_path,
+            cwd=cwd,
             capture_output=True,
             text=True,
             timeout=5,
@@ -104,8 +108,10 @@ def safe_read_file(base_dir: str, filename: str) -> str:
     try:
         with open(path) as f:
             return f.read()
-    except Exception as e:
-        return f"Error: {e}"
+    except FileNotFoundError:
+        return "Error: file not found"
+    except Exception:
+        return "Error: could not read file"
 
 
 if __name__ == "__main__":
