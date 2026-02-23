@@ -89,7 +89,11 @@ _DESCRIPTION_LENGTH_THRESHOLD = 500
 
 # Similarity threshold for duplicate tool detection.
 # Tools with names this similar may indicate shadowing attacks.
-_SIMILARITY_THRESHOLD = 0.8
+_SIMILARITY_THRESHOLD = 0.85
+
+# Minimum shared-prefix ratio to consider two tool names as intentional variants
+# (e.g., git_diff_staged / git_diff_unstaged) rather than shadowing attacks.
+_PREFIX_RATIO_THRESHOLD = 0.5
 
 
 def _levenshtein_ratio(s1: str, s2: str) -> float:
@@ -126,6 +130,22 @@ def _levenshtein_ratio(s1: str, s2: str) -> float:
 
     max_len = max(len1, len2)
     return 1.0 - (matrix[len1][len2] / max_len)
+
+
+def _shared_prefix_length(s1: str, s2: str) -> int:
+    """Return length of common prefix between two strings.
+
+    Args:
+        s1: First string.
+        s2: Second string.
+
+    Returns:
+        Number of leading characters that are identical in both strings.
+    """
+    for i in range(min(len(s1), len(s2))):
+        if s1[i] != s2[i]:
+            return i
+    return min(len(s1), len(s2))
 
 
 def _find_hidden_unicode(text: str) -> list[dict[str, Any]]:
@@ -526,32 +546,60 @@ class ToolPoisoningScanner(BaseScanner):
                 else:
                     ratio = _levenshtein_ratio(names[i], names[j])
                     if ratio >= _SIMILARITY_THRESHOLD:
+                        prefix_len = _shared_prefix_length(names[i], names[j])
+                        min_len = min(len(names[i]), len(names[j]))
+                        prefix_ratio = prefix_len / min_len if min_len > 0 else 0.0
+                        shared_prefix = names[i][:prefix_len]
+
+                        # Tools sharing a significant common prefix are likely
+                        # intentional variants (e.g., git_diff_staged /
+                        # git_diff_unstaged), not shadowing attacks.
+                        if prefix_ratio >= _PREFIX_RATIO_THRESHOLD:
+                            severity = Severity.INFO
+                            description = (
+                                f"Tools '{names[i]}' and '{names[j]}' have "
+                                f"names that are {ratio:.0%} similar with "
+                                f"shared prefix '{shared_prefix}' "
+                                f"({prefix_ratio:.0%} of shorter name). "
+                                f"Same-server tools sharing a common prefix "
+                                f"are typically intentional variants, not "
+                                f"shadowing attacks."
+                            )
+                        else:
+                            severity = Severity.HIGH
+                            description = (
+                                f"Tools '{names[i]}' and '{names[j]}' have "
+                                f"names that are {ratio:.0%} similar. This "
+                                f"could indicate a tool shadowing attack "
+                                f"where a malicious tool mimics a "
+                                f"legitimate one."
+                            )
+
                         findings.append(
                             Finding(
                                 rule_id="MCP03-005",
                                 owasp_id="MCP03",
                                 title=(f"Similar tool names: '{names[i]}' and '{names[j]}'"),
-                                description=(
-                                    f"Tools '{names[i]}' and '{names[j]}' have "
-                                    f"names that are {ratio:.0%} similar. This "
-                                    f"could indicate a tool shadowing attack where "
-                                    f"a malicious tool mimics a legitimate one."
-                                ),
-                                severity=Severity.HIGH,
+                                description=description,
+                                severity=severity,
                                 evidence=(
                                     f"Levenshtein similarity: {ratio:.2%} "
-                                    f"(threshold: {_SIMILARITY_THRESHOLD:.0%})"
+                                    f"(threshold: "
+                                    f"{_SIMILARITY_THRESHOLD:.0%})"
                                 ),
                                 remediation=(
-                                    "Investigate tools with similar names. Ensure "
-                                    "each tool serves a distinct purpose and is "
-                                    "from a trusted source."
+                                    "Investigate tools with similar names. "
+                                    "Ensure each tool serves a distinct "
+                                    "purpose and is from a trusted source."
                                 ),
                                 tool_name=names[i],
                                 metadata={
                                     "tool_a": names[i],
                                     "tool_b": names[j],
                                     "similarity": round(ratio, 4),
+                                    "shared_prefix": shared_prefix,
+                                    "prefix_ratio": round(prefix_ratio, 4),
+                                    "same_server": True,
                                 },
                             )
                         )

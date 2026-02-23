@@ -112,6 +112,30 @@ def read_data(query: str) -> str:
     return f"Data: {query}"
 
 
+@mcp.tool()
+def reed_data(query: str) -> str:
+    """Read data from the secondary database.
+
+    Typo-style name that should be flagged as suspicious (no shared prefix).
+    """
+    return f"Data: {query}"
+
+
+# --- Related tools with shared prefix (should be INFO, not HIGH) ---
+
+
+@mcp.tool()
+def git_diff_staged() -> str:
+    """Show staged changes in the git repository."""
+    return "diff --staged output"
+
+
+@mcp.tool()
+def git_diff_unstaged() -> str:
+    """Show unstaged changes in the git repository."""
+    return "diff output"
+
+
 # --- Clean tools (should NOT trigger findings) ---
 
 
