@@ -4,8 +4,10 @@
 
 ## Migration
 
-Install the new package:
+See the [counteragent README](https://github.com/richardspicer/counteragent#readme) for installation instructions.
+
+The CLI command is now:
 
 ```bash
-uv pip install git+https://github.com/richardspicer/counteragent.git
-```
+counteragent audit scan --transport stdio --command "your-server-command"
+counteragent audit list-checks
